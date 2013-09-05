@@ -8,6 +8,20 @@ defmodule Exleader.Behaviour do
 	defmacro __using__(_) do
 		quote location: :keep do
 			@behaviour :gen_leader
+
+			def start_link do 
+				start_link([:erlang.node|:erlang.nodes])
+			end
+			def start_link(nodes) do
+				start_link(nodes, [])
+			end
+			def start_link(nodes, seed) when is_list(nodes) and is_atom(seed) do
+				start_link(nodes, {:seed_node, seed})
+			end
+			def start_link(nodes, opts) do
+				:gen_leader.start_link(Messager, nodes, opts, Messager, [], [])
+			end
+
 			def init([]), do: {:ok, []}
 			
 			def elected(state, _election, :undefined), do: {:ok, [], state}
